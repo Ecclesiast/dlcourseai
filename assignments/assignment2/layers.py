@@ -2,24 +2,25 @@ import numpy as np
 
 
 def l2_regularization(W, reg_strength):
-    """
+    '''
     Computes L2 regularization loss on weights and its gradient
 
     Arguments:
       W, np array - weights
       reg_strength - float value
-
+    
     Returns:
       loss, single value - l2 regularization loss
       gradient, np.array same shape as W - gradient of weight by l2 loss
-    """
-    # TODO: Copy from the previous assignment
-    raise Exception("Not implemented!")
+    '''
+    loss = reg_strength * np.sum(W**2)
+    grad = 2 * reg_strength * W
+
     return loss, grad
 
 
-def softmax_with_cross_entropy(preds, target_index):
-    """
+def softmax_with_cross_entropy(predictions, target_index):
+    '''
     Computes softmax and cross-entropy loss for model predictions,
     including the gradient
 
@@ -32,53 +33,44 @@ def softmax_with_cross_entropy(preds, target_index):
     Returns:
       loss, single value - cross-entropy loss
       dprediction, np array same shape as predictions - gradient of predictions by loss value
-    """
-    # TODO: Copy from the previous assignment
-    raise Exception("Not implemented!")
+    '''
+    prediction_exp = np.exp(predictions)
+    softmax = prediction_exp / np.sum(prediction_exp, axis=0)
 
-    return loss, d_preds
+    loss = -np.log(softmax[target_index])
+
+    dprediction = softmax
+    dprediction[target_index] -= 1
+
+    return loss, dprediction
 
 
 class Param:
-    """
+    '''
     Trainable parameter of the model
     Captures both parameter value and the gradient
-    """
-
+    '''
     def __init__(self, value):
         self.value = value
         self.grad = np.zeros_like(value)
 
-
+        
 class ReLULayer:
     def __init__(self):
         pass
 
     def forward(self, X):
-        # TODO: Implement forward pass
-        # Hint: you'll need to save some information about X
-        # to use it later in the backward pass
-        raise Exception("Not implemented!")
+        self.result = X.copy()
+
+        self.result[self.result < 0] = 0
+
+        return self.result
 
     def backward(self, d_out):
-        """
-        Backward pass
 
-        Arguments:
-        d_out, np array (batch_size, num_features) - gradient
-           of loss function with respect to output
-
-        Returns:
-        d_result: np array (batch_size, num_features) - gradient
-          with respect to input
-        """
-        # TODO: Implement backward pass
-        # Your final implementation shouldn't have any loops
-        raise Exception("Not implemented!")
-        return d_result
+        return (self.result > 0) * d_out
 
     def params(self):
-        # ReLU Doesn't have any parameters
         return {}
 
 
@@ -89,35 +81,19 @@ class FullyConnectedLayer:
         self.X = None
 
     def forward(self, X):
-        # TODO: Implement forward pass
-        # Your final implementation shouldn't have any loops
-        raise Exception("Not implemented!")
+        self.X = X.copy()
+        result = self.X.dot(self.W.value) + self.B.value
+
+        return result
 
     def backward(self, d_out):
-        """
-        Backward pass
-        Computes gradient with respect to input and
-        accumulates gradients within self.W and self.B
 
-        Arguments:
-        d_out, np array (batch_size, n_output) - gradient
-           of loss function with respect to output
+        self.W.grad = self.X.T.dot(d_out)
+        self.B.grad = np.ones((1, d_out.shape[0])).dot(d_out)
 
-        Returns:
-        d_result: np array (batch_size, n_input) - gradient
-          with respect to input
-        """
-        # TODO: Implement backward pass
-        # Compute both gradient with respect to input
-        # and gradients with respect to W and B
-        # Add gradients of W and B to their `grad` attribute
-
-        # It should be pretty similar to linear classifier from
-        # the previous assignment
-
-        raise Exception("Not implemented!")
+        d_input = d_out.dot(self.W.value.T)
 
         return d_input
 
     def params(self):
-        return {'W': self.W, 'B': self.B}
+        return { 'W': self.W, 'B': self.B }

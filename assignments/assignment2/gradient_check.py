@@ -1,4 +1,5 @@
 import numpy as np
+import layers
 
 
 def check_gradient(f, x, delta=1e-5, tol=1e-4):
@@ -20,17 +21,23 @@ def check_gradient(f, x, delta=1e-5, tol=1e-4):
 
     fx, analytic_grad = f(x)
     analytic_grad = analytic_grad.copy()
-
+    
     assert analytic_grad.shape == x.shape
 
     it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
     while not it.finished:
         ix = it.multi_index
         analytic_grad_at_ix = analytic_grad[ix]
-        numeric_grad_at_ix = 0
+        #numeric_grad_at_ix = 0
+        #print(x[ix])
+        X_plus = np.zeros(x.shape)
+        X_minus = np.zeros(x.shape)
+        X_plus[ix] = x[ix] + delta
+        X_minus[ix] = x[ix] - delta
+        plus_delta, _ = f(X_plus)
+        minus_delta, _ = f(X_minus)
 
-        # TODO Copy from previous assignment
-        raise Exception("Not implemented!")
+        numeric_grad_at_ix = (plus_delta - minus_delta) / (2 * delta) 
 
         if not np.isclose(numeric_grad_at_ix, analytic_grad_at_ix, tol):
             print("Gradients are different at %s. Analytic: %2.5f, Numeric: %2.5f" % (
@@ -135,3 +142,9 @@ def check_model_gradient(model, X, y,
             return False
 
     return True
+
+X = np.array([[1,-2,3],
+              [-1, 2, 0.1]
+              ])
+
+assert check_layer_gradient(layers.ReLULayer(), X)
