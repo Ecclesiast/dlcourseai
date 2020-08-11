@@ -223,15 +223,7 @@ class MaxPoolingLayer:
                 current_step_h = self.stride*y
                 current_step_w = self.stride*x
                 values = np.max(self.X[:, current_step_h:self.pool_size + current_step_h, current_step_w:self.pool_size + current_step_w, :].reshape(batch_size, -1, channels), axis=1)
-                # print(self.X[:, current_step_h:self.pool_size + current_step_h, current_step_w:self.pool_size + current_step_w, :].reshape(batch_size, -1, channels))
-                # print(np.argmax(self.X[:, current_step_h:self.pool_size + current_step_h, current_step_w:self.pool_size + current_step_w, :].reshape(batch_size, -1, channels), axis=1))
-                # print(self.X[:, current_step_h:self.pool_size + current_step_h, current_step_w:self.pool_size + current_step_w, :].reshape(batch_size, -1, channels) == np.max(self.X[:, current_step_h:self.pool_size + current_step_h, current_step_w:self.pool_size + current_step_w, :].reshape(batch_size, -1, channels), axis=(1)))
-                # print(self.X[:, current_step_h:self.pool_size + current_step_h, current_step_w:self.pool_size + current_step_w, :].reshape(batch_size, -1, channels))
-                # print(np.argmax(self.X[:, current_step_h:self.pool_size + current_step_h, current_step_w:self.pool_size + current_step_w, :].reshape(batch_size, -1, channels), axis=2))
-                # print("Input")
-                # print(X)
-                # print("Max")
-                # print(values)
+
                 output[:, y, x, :] = values
         return output
 
@@ -288,16 +280,14 @@ class MaxPoolingLayer:
                 idxs = np.argmax(source_array, axis=1)
 
                 idxs_exp = np.expand_dims(idxs, axis=1)
-                #print(idxs_exp)
-                #values_exp = np.expand_dims(d_out[:, y, x, :].reshape(batch_size, -1, channels), axis=1)
+
                 array = d_input[:, current_step_h:self.pool_size + current_step_h, current_step_w:self.pool_size + current_step_w, :].copy()
                 d_input_shape = array.shape
                 np.put_along_axis(array.reshape(batch_size, -1, channels), idxs_exp, d_out[:, y, x, :].reshape(batch_size, -1, channels), axis=1)
 
 
                 d_input[:, current_step_h:self.pool_size + current_step_h, current_step_w:self.pool_size + current_step_w, :] = array.reshape(d_input_shape)
-                # print("Backward")
-                # print(d_input[:, current_step_h:self.pool_size + current_step_h, current_step_w:self.pool_size + current_step_w, :])
+
         
         return d_input
 
